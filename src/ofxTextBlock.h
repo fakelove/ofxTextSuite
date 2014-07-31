@@ -29,21 +29,42 @@ class wordBlock {
         float           width;
         float           height;
         ofColor         color;
+        ofTrueTypeFont * ttf = NULL;
 
+        void draw( int x_, int y_ ){
+            if( ttf != NULL ) ttf->drawString(rawWord.c_str(), x_, y_);
+        }
 };
 
 
 class lineBlock {
     public:
         vector<int>   wordsID;
-
         float   width;
         float   height;
-
 };
 
-//Just a helpful set of enumerated constants.
-enum TextBlockAlignment { OF_TEXT_ALIGN_LEFT, OF_TEXT_ALIGN_RIGHT, OF_TEXT_ALIGN_JUSTIFIED, OF_TEXT_ALIGN_CENTER };
+
+enum TextBlockAlignment {
+    OF_TEXT_ALIGN_LEFT,
+    OF_TEXT_ALIGN_RIGHT,
+    OF_TEXT_ALIGN_JUSTIFIED,
+    OF_TEXT_ALIGN_CENTER
+};
+
+enum TextFontFamilly {
+    FONT_BOLD,
+    FONT_BOLD_ITALIC,
+    FONT_LIGHT,
+    FONT_LIGHT_ITALIC,
+    FONT_MEDIUM,
+    FONT_MEDIUM_ITALIC,
+    FONT_REGULAR,
+    FONT_REGULAR_ITALIC,
+    FONT_ULTRALIGHT,
+    FONT_ULTRALIGHT_ITALIC
+};
+
 
 class ofxTextBlock
 {
@@ -53,6 +74,21 @@ class ofxTextBlock
 
         string          rawText;
         ofTrueTypeFont  defaultFont;
+
+
+        ofTrueTypeFont  font_bold;
+        ofTrueTypeFont  font_bold_italic;
+        ofTrueTypeFont  font_light;
+        ofTrueTypeFont  font_light_italic;
+        ofTrueTypeFont  font_medium;
+        ofTrueTypeFont  font_medium_italic;
+        ofTrueTypeFont  font_regular;
+        ofTrueTypeFont  font_regular_italic;
+        ofTrueTypeFont  font_ultralight;
+        ofTrueTypeFont  font_ultralight_italic;
+
+        ofTrueTypeFont * getFontForWord( string word_ );
+
         wordBlock       blankSpaceWord;
         float           scale;
 
@@ -76,11 +112,15 @@ class ofxTextBlock
         void    drawCenter(float x, float y);
         void    drawJustified(float x, float y, float boxWidth);
 
-
         void    forceScale(float _scale);
+        void    loadFontFamilly( string fontLocation, int font_family, int font_size );
 
         float   getWidth();
         float   getHeight();
+
+        bool isMetaTag( string str_, string tag_ );
+        bool isMetaTagStart( string & str_ );
+        bool isMetaTagEnd( string & str_ );
 
     protected:
 

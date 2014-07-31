@@ -21,9 +21,7 @@
 
 ofxTextBlock::ofxTextBlock()
 {
-
     scale       =   1.0f;
-
 }
 
 ofxTextBlock::~ofxTextBlock()
@@ -33,20 +31,22 @@ ofxTextBlock::~ofxTextBlock()
 
 void ofxTextBlock::init(string fontLocation, float fontSize){
 
-    defaultFont.loadFont(fontLocation, fontSize, true, true);
+    font_regular.loadFont(fontLocation, fontSize, true, true);
 
     //Set up the blank space word
     blankSpaceWord.rawWord = " ";
-    blankSpaceWord.width   = defaultFont.stringWidth ("x");
-    blankSpaceWord.height  = defaultFont.stringHeight("i");
-    blankSpaceWord.color.r = blankSpaceWord.color.g = blankSpaceWord.color.b = 255;
+    blankSpaceWord.width   = font_regular.stringWidth ("x");
+    blankSpaceWord.height  = font_regular.stringHeight("i");
+    blankSpaceWord.color.r = blankSpaceWord.color.g = blankSpaceWord.color.b  = 255;
 
 }
 
 void ofxTextBlock::setText(string _inputText){
+
     rawText     = _inputText;
     _loadWords();
     wrapTextForceLines(1);
+
 }
 
 void ofxTextBlock::draw(float x, float y){
@@ -73,14 +73,16 @@ void ofxTextBlock::drawLeft(float x, float y){
                 currentWordID = lines[l].wordsID[w];
 
                 drawX = x + currX;
-                drawY = y + (defaultFont.getLineHeight() * (l + 1));
+                drawY = y + (font_regular.getLineHeight() * (l + 1));
 
                 ofSetColor(words[currentWordID].color.r, words[currentWordID].color.g, words[currentWordID].color.b);
                 glPushMatrix();
                 //glTranslatef(drawX, drawY, 0.0f);
                 glScalef(scale, scale, scale);
 
-                defaultFont.drawString(words[currentWordID].rawWord.c_str(), drawX, drawY);
+                //font_regular.drawString(words[currentWordID].rawWord.c_str(), drawX, drawY);
+                words[currentWordID].draw(drawX, drawY);
+
                 currX += words[currentWordID].width;
 
                 glPopMatrix();
@@ -120,9 +122,9 @@ void ofxTextBlock::drawCenter(float x, float y){
                 currentWordID = lines[l].wordsID[w];
 
                 drawX = -(lineWidth / 2) + currX;
-                drawY = defaultFont.getLineHeight() * (l + 1);
+                drawY = font_regular.getLineHeight() * (l + 1);
 
-                ofSetColor(words[currentWordID].color.r, words[currentWordID].color.g, words[currentWordID].color.b);
+                //ofSetColor(words[currentWordID].color.r, words[currentWordID].color.g, words[currentWordID].color.b);
 
                 glPushMatrix();
 
@@ -131,12 +133,14 @@ void ofxTextBlock::drawCenter(float x, float y){
 
                 glScalef(scale, scale, scale);
 
-                defaultFont.drawString(words[currentWordID].rawWord.c_str(), drawX, drawY);
+                //font_regular.drawString(words[currentWordID].rawWord.c_str(), (int)drawX, (int)drawY);
+                words[currentWordID].draw(drawX, drawY);
                 currX += words[currentWordID].width;
 
                 glPopMatrix();
 
             }
+
             currX = 0;
 
         }
@@ -155,8 +159,7 @@ void ofxTextBlock::drawJustified(float x, float y, float boxWidth){
 
     float currX = 0;
 
-    if (words.size() > 0) {
-
+    if ( words.size()>0 ) {
 
         for(int l=0;l < lines.size(); l++)
         {
@@ -178,7 +181,7 @@ void ofxTextBlock::drawJustified(float x, float y, float boxWidth){
                 currentWordID = lines[l].wordsID[w];
 
                 drawX = currX;
-                drawY = defaultFont.getLineHeight() * (l + 1);
+                drawY = font_regular.getLineHeight() * (l + 1);
 
                 ofSetColor(words[currentWordID].color.r, words[currentWordID].color.g, words[currentWordID].color.b);
                 glPushMatrix();
@@ -187,16 +190,15 @@ void ofxTextBlock::drawJustified(float x, float y, float boxWidth){
                 glScalef(scale, scale, scale);
 
                 if (words[currentWordID].rawWord != " ") {
-                    defaultFont.drawString(words[currentWordID].rawWord.c_str(), drawX, drawY);
+                    //font_regular.drawString(words[currentWordID].rawWord.c_str(), drawX, drawY);
+                    words[currentWordID].draw(drawX, drawY);
                     currX += words[currentWordID].width;
                 }
                 else {
                     currX += pixelsPerSpace;
                 }
 
-
                 glPopMatrix();
-
             }
             currX = 0;
 
@@ -224,7 +226,7 @@ void ofxTextBlock::drawRight(float x, float y){
                 currentWordID = lines[l].wordsID[w];
 
                 drawX = -currX - words[currentWordID].width;
-                drawY = defaultFont.getLineHeight() * (l + 1);
+                drawY = font_regular.getLineHeight() * (l + 1);
 
                 ofSetColor(words[currentWordID].color.r, words[currentWordID].color.g, words[currentWordID].color.b);
 
@@ -234,7 +236,8 @@ void ofxTextBlock::drawRight(float x, float y){
                 glTranslatef(x, y, 0.0f);
                 glScalef(scale, scale, scale);
 
-                defaultFont.drawString(words[currentWordID].rawWord.c_str(), drawX, drawY);
+                //font_regular.drawString(words[currentWordID].rawWord.c_str(), drawX, drawY);
+                words[currentWordID].draw(drawX, drawY);
                 currX += words[currentWordID].width;
 
                 glPopMatrix();
@@ -333,8 +336,25 @@ void ofxTextBlock::wrapTextArea(float rWidth, float rHeight){
         ofLog(OF_LOG_VERBOSE,"Scaling with %i at scale %f...\n", maxIndex, scale);
     }
 
-
 }
+
+
+void ofxTextBlock::loadFontFamilly( string fontLocation, int font_family, int font_size ){
+
+    ofTrueTypeFont * ttf = NULL;
+
+    if( font_family == FONT_REGULAR ){
+        ttf = &font_regular;
+    }
+    if( font_family == FONT_REGULAR_ITALIC ){
+        ttf = &font_regular_italic;
+    }
+    if( ttf != NULL ){
+        ttf->loadFont(fontLocation, font_size, true, true);
+    }
+
+
+};
 
 
 bool ofxTextBlock::wrapTextForceLines(int linesN){
@@ -421,24 +441,81 @@ void ofxTextBlock::_loadWords(){
 
     words.clear();
 
-    for(int i=0;i < tokens.size(); i++)
+    int skippedTags = 0;
+    //bool metaClosed = true;
+    ofTrueTypeFont * fontType = &font_regular;
+
+    for( int i=0; i<tokens.size(); i++)
     {
-        tmpWord.rawWord = tokens.at(i);
-        tmpWord.width   = defaultFont.stringWidth(tmpWord.rawWord);
-        tmpWord.height  = defaultFont.stringHeight(tmpWord.rawWord);
+
+        string word  = tokens.at(i);
+
+        if( isMetaTagStart( word ) ){
+            fontType = &font_regular_italic; ///TODO font type by tags
+            skippedTags++;
+            cout << "isMetaTagStart : " << word << endl;
+            continue;
+        }
+
+        if( isMetaTagEnd( word )){
+            fontType = &font_regular;
+            skippedTags++;
+            cout << "isMetaTagEnd : " << word << endl;
+            continue;
+        }
+
+        tmpWord.rawWord = word;
         tmpWord.color.r = tmpWord.color.g = tmpWord.color.b = 150;
+        tmpWord.width   = fontType->stringWidth(tmpWord.rawWord);
+        tmpWord.height  = fontType->stringHeight(tmpWord.rawWord);
+        tmpWord.ttf     = fontType;
+
         words.push_back(tmpWord);
         //add spaces into the words vector if it is not the last word.
-        if (i != tokens.size()) words.push_back(blankSpaceWord);
+        if (i != tokens.size()-1) words.push_back(blankSpaceWord);
+
     }
+
+    cout << "ofxTextBlock::_loadWords skippedTags:" << skippedTags << endl;
 
     for(int i=0;i < words.size(); i++)
     {
         ofLog(OF_LOG_VERBOSE, "Loaded word: %i, %s\n", i, words[i].rawWord.c_str());
     }
+};
 
 
-}
+bool ofxTextBlock::isMetaTagStart( string & str_ ){
+
+    if(isMetaTag( str_, "<i>"))
+       return true;
+
+    if(isMetaTag( str_, "<b>"))
+       return true;
+
+    return false;
+
+};
+
+bool ofxTextBlock::isMetaTagEnd( string & str_ ){
+
+
+    if(isMetaTag( str_, "</i>"))
+       return true;
+
+    return false;
+
+};
+
+bool ofxTextBlock::isMetaTag( string str_, string tag_ ){
+
+    if ( ofStringTimesInString( str_, tag_) > 0) {
+        ofStringReplace( str_, tag_, "");
+        return true;
+    }
+    return false;
+
+};
 
 float ofxTextBlock::_getWidthOfWords(){
 
@@ -448,7 +525,6 @@ float ofxTextBlock::_getWidthOfWords(){
         for(int i=0;i < words.size(); i++)
         {
             widthTotal += words[i].width;
-
         }
         return widthTotal;
     }
@@ -486,7 +562,7 @@ float ofxTextBlock::getWidth(){
 float ofxTextBlock::getHeight(){
 
     if (words.size() > 0) {
-        return defaultFont.getLineHeight() * scale * lines.size();
+        return font_regular.getLineHeight() * scale * lines.size();
     }
     else return 0;
 
@@ -494,7 +570,7 @@ float ofxTextBlock::getHeight(){
 
 void ofxTextBlock::setLineHeight(float lineHeight){
 
-    defaultFont.setLineHeight(lineHeight);
+    font_regular.setLineHeight(lineHeight);
 
 }
 

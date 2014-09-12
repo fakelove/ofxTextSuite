@@ -76,16 +76,16 @@ class ofxTextBlock
         ofTrueTypeFont  defaultFont;
 
 
-        ofTrueTypeFont  font_bold;
-        ofTrueTypeFont  font_bold_italic;
-        ofTrueTypeFont  font_light;
-        ofTrueTypeFont  font_light_italic;
-        ofTrueTypeFont  font_medium;
-        ofTrueTypeFont  font_medium_italic;
-        ofTrueTypeFont  font_regular;
-        ofTrueTypeFont  font_regular_italic;
-        ofTrueTypeFont  font_ultralight;
-        ofTrueTypeFont  font_ultralight_italic;
+        ofTrueTypeFont*  font_bold;
+        ofTrueTypeFont*  font_bold_italic;
+        ofTrueTypeFont*  font_light;
+        ofTrueTypeFont*  font_light_italic;
+        ofTrueTypeFont*  font_medium;
+        ofTrueTypeFont*  font_medium_italic;
+        ofTrueTypeFont*  font_regular;
+        ofTrueTypeFont*  font_regular_italic;
+        ofTrueTypeFont*  font_ultralight;
+        ofTrueTypeFont*  font_ultralight_italic;
 
         ofTrueTypeFont * getFontForWord( string word_ );
 

@@ -18,7 +18,7 @@
  ***********************************************************************/
 
 #include "ofxTextBlock.h"
-
+#include "ofxAssetManager.h"
 ofxTextBlock::ofxTextBlock()
 {
     scale       =   1.0f;
@@ -31,12 +31,12 @@ ofxTextBlock::~ofxTextBlock()
 
 void ofxTextBlock::init(string fontLocation, float fontSize){
 
-    font_regular.loadFont(fontLocation, fontSize, true, true);
+    font_regular = ofxAssetManager::getInstance()->getTTFont(fontLocation, fontSize);
 
     //Set up the blank space word
     blankSpaceWord.rawWord = " ";
-    blankSpaceWord.width   = font_regular.stringWidth ("x");
-    blankSpaceWord.height  = font_regular.stringHeight("i");
+    blankSpaceWord.width   = font_regular->stringWidth ("x");
+    blankSpaceWord.height  = font_regular->stringHeight("i");
     blankSpaceWord.color.r = blankSpaceWord.color.g = blankSpaceWord.color.b  = 255;
 
 }
@@ -73,14 +73,14 @@ void ofxTextBlock::drawLeft(float x, float y){
                 currentWordID = lines[l].wordsID[w];
 
                 drawX = x + currX;
-                drawY = y + (font_regular.getLineHeight() * (l + 1));
+                drawY = y + (font_regular->getLineHeight() * (l + 1));
 
                 ofSetColor(words[currentWordID].color.r, words[currentWordID].color.g, words[currentWordID].color.b);
                 glPushMatrix();
                 //glTranslatef(drawX, drawY, 0.0f);
                 glScalef(scale, scale, scale);
 
-                //font_regular.drawString(words[currentWordID].rawWord.c_str(), drawX, drawY);
+                //font_regular->drawString(words[currentWordID].rawWord.c_str(), drawX, drawY);
                 words[currentWordID].draw(drawX, drawY);
 
                 currX += words[currentWordID].width;
@@ -122,7 +122,7 @@ void ofxTextBlock::drawCenter(float x, float y){
                 currentWordID = lines[l].wordsID[w];
 
                 drawX = -(lineWidth / 2) + currX;
-                drawY = font_regular.getLineHeight() * (l + 1);
+                drawY = font_regular->getLineHeight() * (l + 1);
 
                 //ofSetColor(words[currentWordID].color.r, words[currentWordID].color.g, words[currentWordID].color.b);
 
@@ -133,7 +133,7 @@ void ofxTextBlock::drawCenter(float x, float y){
 
                 glScalef(scale, scale, scale);
 
-                //font_regular.drawString(words[currentWordID].rawWord.c_str(), (int)drawX, (int)drawY);
+                //font_regular->drawString(words[currentWordID].rawWord.c_str(), (int)drawX, (int)drawY);
                 words[currentWordID].draw(drawX, drawY);
                 currX += words[currentWordID].width;
 
@@ -181,7 +181,7 @@ void ofxTextBlock::drawJustified(float x, float y, float boxWidth){
                 currentWordID = lines[l].wordsID[w];
 
                 drawX = currX;
-                drawY = font_regular.getLineHeight() * (l + 1);
+                drawY = font_regular->getLineHeight() * (l + 1);
 
                 ofSetColor(words[currentWordID].color.r, words[currentWordID].color.g, words[currentWordID].color.b);
                 glPushMatrix();
@@ -190,7 +190,7 @@ void ofxTextBlock::drawJustified(float x, float y, float boxWidth){
                 glScalef(scale, scale, scale);
 
                 if (words[currentWordID].rawWord != " ") {
-                    //font_regular.drawString(words[currentWordID].rawWord.c_str(), drawX, drawY);
+                    //font_regular->drawString(words[currentWordID].rawWord.c_str(), drawX, drawY);
                     words[currentWordID].draw(drawX, drawY);
                     currX += words[currentWordID].width;
                 }
@@ -226,7 +226,7 @@ void ofxTextBlock::drawRight(float x, float y){
                 currentWordID = lines[l].wordsID[w];
 
                 drawX = -currX - words[currentWordID].width;
-                drawY = font_regular.getLineHeight() * (l + 1);
+                drawY = font_regular->getLineHeight() * (l + 1);
 
                 ofSetColor(words[currentWordID].color.r, words[currentWordID].color.g, words[currentWordID].color.b);
 
@@ -236,7 +236,7 @@ void ofxTextBlock::drawRight(float x, float y){
                 glTranslatef(x, y, 0.0f);
                 glScalef(scale, scale, scale);
 
-                //font_regular.drawString(words[currentWordID].rawWord.c_str(), drawX, drawY);
+                //font_regular->drawString(words[currentWordID].rawWord.c_str(), drawX, drawY);
                 words[currentWordID].draw(drawX, drawY);
                 currX += words[currentWordID].width;
 
@@ -344,13 +344,13 @@ void ofxTextBlock::loadFontFamilly( string fontLocation, int font_family, int fo
     ofTrueTypeFont * ttf = NULL;
 
     if( font_family == FONT_REGULAR ){
-        ttf = &font_regular;
+        ttf = font_regular;
     }
     if( font_family == FONT_REGULAR_ITALIC ){
-        ttf = &font_regular_italic;
+        ttf = font_regular_italic;
     }
     if( ttf != NULL ){
-        ttf->loadFont(fontLocation, font_size, true, true);
+        ttf = ofxAssetManager::getInstance()->getTTFont(fontLocation, font_size);
     }
 
 
@@ -443,7 +443,7 @@ void ofxTextBlock::_loadWords(){
 
     int skippedTags = 0;
     //bool metaClosed = true;
-    ofTrueTypeFont * fontType = &font_regular;
+    ofTrueTypeFont * fontType = font_regular;
 
     for( int i=0; i<tokens.size(); i++)
     {
@@ -451,14 +451,14 @@ void ofxTextBlock::_loadWords(){
         string word  = tokens.at(i);
 
         if( isMetaTagStart( word ) ){
-            fontType = &font_regular_italic; ///TODO font type by tags
+            fontType = font_regular_italic; ///TODO font type by tags
             skippedTags++;
             cout << "isMetaTagStart : " << word << endl;
             continue;
         }
 
         if( isMetaTagEnd( word )){
-            fontType = &font_regular;
+            fontType = font_regular;
             skippedTags++;
             cout << "isMetaTagEnd : " << word << endl;
             continue;
@@ -562,7 +562,7 @@ float ofxTextBlock::getWidth(){
 float ofxTextBlock::getHeight(){
 
     if (words.size() > 0) {
-        return font_regular.getLineHeight() * scale * lines.size();
+        return font_regular->getLineHeight() * scale * lines.size();
     }
     else return 0;
 
@@ -570,7 +570,7 @@ float ofxTextBlock::getHeight(){
 
 void ofxTextBlock::setLineHeight(float lineHeight){
 
-    font_regular.setLineHeight(lineHeight);
+    font_regular->setLineHeight(lineHeight);
 
 }
 
